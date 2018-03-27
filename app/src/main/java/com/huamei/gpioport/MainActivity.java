@@ -3,6 +3,7 @@ package com.huamei.gpioport;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
@@ -10,9 +11,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
+import com.huamei.gpioport.volley.RequestListener;
+import com.huamei.gpioport.volley.StringRequest;
 import com.xuhao.android.libsocket.sdk.ConnectionInfo;
 import com.xuhao.android.libsocket.sdk.OkSocketOptions;
 import com.xuhao.android.libsocket.sdk.SocketActionAdapter;
@@ -27,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 import static com.xuhao.android.libsocket.sdk.OkSocket.open;
 
@@ -41,6 +51,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
     private OkSocketOptions mOkOptions;
     private int numberIn = 0;//表示某次的读取次数三次表示失败
     private int msgId;
+    private ImageView imageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +68,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); //设置全屏的flag
         app.addActivity(this);
         tv_content = $(R.id.tv_content);
+        imageView = $(R.id.imageView);
         mInfo = new ConnectionInfo(HttpUtils.TCP_IP, HttpUtils.TCP_PRO_IP);
         mOkOptions = new OkSocketOptions.Builder(OkSocketOptions.getDefault())
                 .setReconnectionManager(new NoneReconnect())
@@ -81,9 +93,45 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
 
     @Override
     protected void initData() {
+        StringRequest request = HttpUtils.getImageCode(listener);
+        InitApplication.getInstance().addRequestQueue(1001, request, this);
         gpioIn();
         gpioOut();
     }
+
+    public RequestListener<String> listener = new RequestListener<String>() {
+        @Override
+        protected void onSuccess(int what, String response) {
+            JSONObject jsonObject;
+            switch (what) {
+                case 1001:
+                    jsonObject = (JSONObject) JSON.parse(response);
+                    if (jsonObject.getInteger("status") == 0) {
+                        ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
+                                new Response.Listener<Bitmap>() {
+                                    @Override
+                                    public void onResponse(Bitmap bitmap) {
+                                        imageView.setImageBitmap(bitmap);
+                                    }
+                                }, 0, 0, Bitmap.Config.RGB_565,
+                                new Response.ErrorListener() {
+                                    public void onErrorResponse(VolleyError error) {
+                                        imageView.setImageResource(R.mipmap.ic_launcher);
+                                    }
+                                });
+                        app.mQueue.add(request);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        protected void onError(int what, int code, String message) {
+        }
+    };
+
 
     @Override
     protected void initListener() {
@@ -294,4 +342,5 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                 break;
         }
     }
+
 }

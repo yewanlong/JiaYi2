@@ -10,7 +10,7 @@
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="" />
+        android:text="微信扫一扫开门" />
 
     <Button
         android:id="@+id/button_open"
@@ -24,4 +24,8 @@
         android:layout_height="wrap_content"
         android:text="关闭" />
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>
