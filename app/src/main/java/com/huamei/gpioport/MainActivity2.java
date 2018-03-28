@@ -4,24 +4,13 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.huamei.gpioport.volley.RequestListener;
-import com.huamei.gpioport.volley.StringRequest;
 import com.xuhao.android.libsocket.sdk.ConnectionInfo;
 import com.xuhao.android.libsocket.sdk.OkSocketOptions;
 import com.xuhao.android.libsocket.sdk.SocketActionAdapter;
@@ -32,36 +21,29 @@ import com.xuhao.android.libsocket.sdk.connection.IConnectionManager;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
 import java.nio.charset.Charset;
 
 import static com.xuhao.android.libsocket.sdk.OkSocket.open;
 
-public class MainActivity extends YBaseActivity implements View.OnClickListener {
+public class MainActivity2 extends YBaseActivity implements View.OnClickListener {
 
-    private String fan_id, type;
-    private TextView tv_content;
-    private String gpioOut = "203";
-    private String gpioIn = "234";
+    private String type;
+    private String gpioOutOpen = "203";
+    private String gpioOutClose = "234";
     private IConnectionManager mManager;
     private ConnectionInfo mInfo;
     private OkSocketOptions mOkOptions;
-    private int numberIn = 0;//表示某次的读取次数三次表示失败
     private int msgId;
-    private ImageView imageView;
 
     @Override
     protected int getContentView() {
-        return R.layout.activity_main;
+        return R.layout.activity_main2;
     }
 
     @Override
     protected void initView() {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN); //设置全屏的flag
         app.addActivity(this);
-        tv_content = $(R.id.tv_content);
-        imageView = $(R.id.imageView);
         mInfo = new ConnectionInfo(HttpUtils.TCP_IP, HttpUtils.TCP_PRO_IP);
         mOkOptions = new OkSocketOptions.Builder(OkSocketOptions.getDefault())
                 .setReconnectionManager(new NoneReconnect())
@@ -79,51 +61,16 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                     permissions,
                     REQUEST_FOR_PERMISSIONS);
         } else {
-            HttpUtils.IMEI = "866960027556826";
+            HttpUtils.IMEI = "866960027556866";
 //            HttpUtils.IMEI = getSubscriberId(this);
         }
     }
 
     @Override
     protected void initData() {
-        StringRequest request = HttpUtils.getImageCode(listener);
-        InitApplication.getInstance().addRequestQueue(1001, request, this);
-        gpioIn();
-        gpioOut();
+        gpioOut(gpioOutOpen);
+        gpioOut(gpioOutClose);
     }
-
-    public RequestListener<String> listener = new RequestListener<String>() {
-        @Override
-        protected void onSuccess(int what, String response) {
-            JSONObject jsonObject;
-            switch (what) {
-                case 1001:
-                    jsonObject = (JSONObject) JSON.parse(response);
-                    if (jsonObject.getInteger("status") == 0) {
-                        ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
-                                new Response.Listener<Bitmap>() {
-                                    @Override
-                                    public void onResponse(Bitmap bitmap) {
-                                        imageView.setImageBitmap(bitmap);
-                                    }
-                                }, 0, 0, Bitmap.Config.RGB_565,
-                                new Response.ErrorListener() {
-                                    public void onErrorResponse(VolleyError error) {
-                                        imageView.setImageResource(R.mipmap.ic_launcher);
-                                    }
-                                });
-                        app.mQueue.add(request);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        @Override
-        protected void onError(int what, int code, String message) {
-        }
-    };
 
 
     @Override
@@ -131,6 +78,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         findViewById(R.id.button_open).setOnClickListener(this);
         findViewById(R.id.button_close).setOnClickListener(this);
         findViewById(R.id.button).setOnClickListener(this);
+
     }
 
     @Override
@@ -138,28 +86,26 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         switch (view.getId()) {
             case R.id.button_close:
                 controlGpio(true);
-                mHandler.postDelayed(mRunnable, 1000);
                 break;
             case R.id.button_open:
                 controlGpio(false);
-                mHandler.postDelayed(mRunnable, 1000);
                 break;
             case R.id.button:
-                startActivity(new Intent(this, MainActivity2.class));
+                startActivity(new Intent(this, MainActivity.class));
                 finish();
                 break;
         }
     }
 
-    private void gpioOut() {
+    private void gpioOut(String gpio) {
         try {
             Process process = Runtime.getRuntime().exec("su");
             DataOutputStream dos = new DataOutputStream(process.getOutputStream());
             //打开gpio引脚74，即status_led连接的引脚
-            dos.writeBytes("echo " + gpioOut + " > /sys/class/gpio/export" + "\n");
+            dos.writeBytes("echo " + gpio + " > /sys/class/gpio/export" + "\n");
             dos.flush();
             //设置引脚功能为输出
-            dos.writeBytes("echo out > /sys/class/gpio/gpio" + gpioOut + "/direction" + "\n");
+            dos.writeBytes("echo out > /sys/class/gpio/gpio" + gpio + "/direction" + "\n");
             dos.flush();
             dos.close();
         } catch (IOException e) {
@@ -174,9 +120,9 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
             Process process = Runtime.getRuntime().exec("su");
             dos = new DataOutputStream(process.getOutputStream());
             if (isOpen)
-                dos.writeBytes("echo 1 > /sys/class/gpio/gpio" + gpioOut + "/value" + "\n");//开
+                dos.writeBytes("echo 1 > /sys/class/gpio/gpio" + gpioOutOpen + "/value" + "\n");//开
             else
-                dos.writeBytes("echo 0 > /sys/class/gpio/gpio" + gpioOut + "/value" + "\n");//关
+                dos.writeBytes("echo 0 > /sys/class/gpio/gpio" + gpioOutClose + "/value" + "\n");//关
             dos.flush();
             dos.close();
         } catch (IOException e) {
@@ -184,62 +130,8 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         }
     }
 
-    private void gpioIn() {
-        try {
-            Process process = Runtime.getRuntime().exec("su");
-            DataOutputStream dos = new DataOutputStream(process.getOutputStream());
-            //打开gpio引脚74，即status_led连接的引脚
-            dos.writeBytes("echo " + gpioIn + " > /sys/class/gpio/export" + "\n");
-            dos.flush();
-            //设置引脚功能为输出
-            dos.writeBytes("echo in > /sys/class/gpio/gpio" + gpioIn + "/direction" + "\n");
-            dos.flush();
-            dos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String readGpio() {
-        String gpioState = null;
-        String str = "";
-        try {
-            Process pp = Runtime.getRuntime().exec("cat /sys/class/gpio/gpio" + gpioIn + "/value");
-            InputStreamReader ir = new InputStreamReader(pp.getInputStream());
-            LineNumberReader input = new LineNumberReader(ir);
-            for (; null != str; ) {
-                str = input.readLine();
-                if (str != null) {
-                    gpioState = str.trim();
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return gpioState;
-    }
 
     private Handler mHandler = new Handler();
-    private Runnable mRunnable = new Runnable() {
-        @Override
-        public void run() {
-            String gpioState = readGpio();
-            if (!TextUtils.isEmpty(gpioState)) {
-                socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "0"));
-                tv_content.setText(tv_content.getText().toString() + " " + gpioState);
-            } else {
-                if (numberIn < 2) {
-                    mHandler.postDelayed(mRunnable, 500);
-                    numberIn++;
-                } else {
-                    numberIn = 0;
-                    socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "1"));
-                }
-                tv_content.setText(tv_content.getText().toString() + " " + "读取失败");
-            }
-        }
-    };
     private Runnable mRunnableError = new Runnable() {
         @Override
         public void run() {
@@ -259,7 +151,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         @Override
         public void onSocketConnectionSuccess(Context context, ConnectionInfo info, String action) {
             Log.i("ywl", "onSocketConnectionSuccess:");
-            socketSend(HttpUtils.getCheckIn(0, HttpUtils.IMEI));
+            socketSend(HttpUtils.getCheckIn2(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
         }
@@ -315,14 +207,12 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         }
         switch (jsonObject.getString("Action")) {
             case "Door":
-                fan_id = jsonObject.getString("fan_id");
                 type = jsonObject.getString("type");
                 if ("1".equals(type)) {
                     controlGpio(false);
                 } else {
                     controlGpio(true);
                 }
-                mHandler.postDelayed(mRunnable, 500);
                 break;
         }
     }
