@@ -44,7 +44,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
 
     private String fan_id, type;
     private TextView tv_content;
-    private String gpioOut = "233";
+    private String gpioOut = "203";
     private String gpioIn = "234";
     private IConnectionManager mManager;
     private ConnectionInfo mInfo;
