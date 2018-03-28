@@ -11,32 +11,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
-        android:text="切换到蛋糕机页面"
+        android:text="切换到扫描开门页面"
         android:textColor="@android:color/white"
         android:visibility="visible" />
 
-    <TextView
-        android:id="@+id/tv_content"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="微信扫一扫开门" />
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/button_open"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="打开"
-        android:visibility="visible" />
+        <Button
+            android:id="@+id/button_open"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="打开"
+            android:visibility="visible" />
 
-    <Button
-        android:id="@+id/button_close"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="关闭"
-        android:visibility="visible" />
+        <Button
+            android:id="@+id/button_close"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="关闭"
+            android:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    </LinearLayout>
+
 </LinearLayout>
