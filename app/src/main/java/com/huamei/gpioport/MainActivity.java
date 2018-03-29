@@ -42,8 +42,8 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
 
     private String fan_id, type;
     private TextView tv_content;
-    private String gpioOut = "203";
-    private String gpioIn = "234";
+    private String gpioOut = "234";
+    private String gpioIn = "203";
     private IConnectionManager mManager;
     private ConnectionInfo mInfo;
     private OkSocketOptions mOkOptions;
@@ -137,11 +137,11 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_close:
-                controlGpio(true);
+                controlGpio(false);
                 mHandler.postDelayed(mRunnable, 1000);
                 break;
             case R.id.button_open:
-                controlGpio(false);
+                controlGpio(true);
                 mHandler.postDelayed(mRunnable, 1000);
                 break;
             case R.id.button:
@@ -226,20 +226,45 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         public void run() {
             String gpioState = readGpio();
             if (!TextUtils.isEmpty(gpioState)) {
-                socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "0"));
+                if (gpioState.equals("1")) {
+                    socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "0"));
+                    mHandler.postDelayed(mRunnableValue, 100);
+                } else {
+                    controlGpio(false);
+                    isFalse();
+                }
                 tv_content.setText(tv_content.getText().toString() + " " + gpioState);
             } else {
-                if (numberIn < 2) {
-                    mHandler.postDelayed(mRunnable, 500);
-                    numberIn++;
-                } else {
-                    numberIn = 0;
-                    socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "1"));
-                }
+                isFalse();
                 tv_content.setText(tv_content.getText().toString() + " " + "读取失败");
             }
         }
     };
+
+    private void isFalse() {
+        if (numberIn < 2) {
+            mHandler.postDelayed(mRunnable, 500);
+            numberIn++;
+        } else {
+            numberIn = 0;
+            socketSend(HttpUtils.getDoor(fan_id, HttpUtils.IMEI, type, "1"));
+        }
+    }
+
+    private Runnable mRunnableValue = new Runnable() {
+        @Override
+        public void run() {
+            String gpioState = readGpio();
+            tv_content.setText(tv_content.getText().toString() + " " + gpioState);
+            if (gpioState.equals("0")) {
+                controlGpio(false);
+            }else {
+                mHandler.postDelayed(mRunnableValue, 500);
+            }
+        }
+    };
+
+
     private Runnable mRunnableError = new Runnable() {
         @Override
         public void run() {
@@ -318,11 +343,11 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                 fan_id = jsonObject.getString("fan_id");
                 type = jsonObject.getString("type");
                 if ("1".equals(type)) {
-                    controlGpio(false);
-                } else {
                     controlGpio(true);
+                } else {
+                    controlGpio(false);
                 }
-                mHandler.postDelayed(mRunnable, 500);
+                mHandler.postDelayed(mRunnable, 1000);
                 break;
         }
     }
