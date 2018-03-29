@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
@@ -79,15 +78,13 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                     permissions,
                     REQUEST_FOR_PERMISSIONS);
         } else {
-            HttpUtils.IMEI = "866960027556826";
 //            HttpUtils.IMEI = getSubscriberId(this);
+            HttpUtils.IMEI = "866960027556826";
         }
     }
 
     @Override
     protected void initData() {
-        StringRequest request = HttpUtils.getImageCode(listener);
-        InitApplication.getInstance().addRequestQueue(1001, request, this);
         gpioIn();
         gpioOut();
     }
@@ -233,10 +230,10 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                     controlGpio(false);
                     isFalse();
                 }
-                tv_content.setText(tv_content.getText().toString() + " " + gpioState);
+//                tv_content.setText(tv_content.getText().toString() + " " + gpioState);
             } else {
                 isFalse();
-                tv_content.setText(tv_content.getText().toString() + " " + "读取失败");
+//                tv_content.setText(tv_content.getText().toString() + " " + "读取失败");
             }
         }
     };
@@ -255,10 +252,10 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         @Override
         public void run() {
             String gpioState = readGpio();
-            tv_content.setText(tv_content.getText().toString() + " " + gpioState);
+//            tv_content.setText(tv_content.getText().toString() + " " + gpioState);
             if (gpioState.equals("0")) {
                 controlGpio(false);
-            }else {
+            } else {
                 mHandler.postDelayed(mRunnableValue, 500);
             }
         }
@@ -287,6 +284,8 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
             socketSend(HttpUtils.getCheckIn(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
+            StringRequest request = HttpUtils.getImageCode(listener);
+            InitApplication.getInstance().addRequestQueue(1001, request, this);
         }
 
         @Override
@@ -367,4 +366,9 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

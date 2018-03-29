@@ -4,13 +4,21 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+import com.huamei.gpioport.volley.RequestListener;
+import com.huamei.gpioport.volley.StringRequest;
 import com.xuhao.android.libsocket.sdk.ConnectionInfo;
 import com.xuhao.android.libsocket.sdk.OkSocketOptions;
 import com.xuhao.android.libsocket.sdk.SocketActionAdapter;
@@ -22,6 +30,7 @@ import com.xuhao.android.libsocket.sdk.connection.IConnectionManager;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 import static com.xuhao.android.libsocket.sdk.OkSocket.open;
 
@@ -34,6 +43,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
     private ConnectionInfo mInfo;
     private OkSocketOptions mOkOptions;
     private int msgId;
+    private ImageView imageView;
 
     @Override
     protected int getContentView() {
@@ -53,6 +63,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         mManager.registerReceiver(adapter);
         mManager.connect();
         checkPermission(new String[]{Manifest.permission.READ_PHONE_STATE}, 199);
+        imageView = $(R.id.imageView);
     }
 
     public void checkPermission(String[] permissions, int REQUEST_FOR_PERMISSIONS) {
@@ -61,15 +72,24 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
                     permissions,
                     REQUEST_FOR_PERMISSIONS);
         } else {
-            HttpUtils.IMEI = "866960027556866";
 //            HttpUtils.IMEI = getSubscriberId(this);
+            HttpUtils.IMEI = "11111111111555555555";
         }
     }
 
     @Override
     protected void initData() {
+        StringRequest request = HttpUtils.getImageCode(listener);
+        InitApplication.getInstance().addRequestQueue(1001, request, this);
         gpioOut(gpioOutOpen);
         gpioOut(gpioOutClose);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlGpioClose(false);
+        controlGpioOpen(false);
     }
 
 
@@ -78,17 +98,18 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         findViewById(R.id.button_open).setOnClickListener(this);
         findViewById(R.id.button_close).setOnClickListener(this);
         findViewById(R.id.button).setOnClickListener(this);
-
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.button_close:
-                controlGpio(true);
+                controlGpioClose(false);
+                controlGpioOpen(true);
                 break;
             case R.id.button_open:
-                controlGpio(false);
+                controlGpioClose(true);
+                controlGpioOpen(false);
                 break;
             case R.id.button:
                 startActivity(new Intent(this, MainActivity.class));
@@ -113,14 +134,29 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         }
     }
 
-
-    private void controlGpio(boolean isOpen) {
+    private void controlGpioOpen(boolean isOpen) {
         DataOutputStream dos = null;
         try {
             Process process = Runtime.getRuntime().exec("su");
             dos = new DataOutputStream(process.getOutputStream());
             if (isOpen)
                 dos.writeBytes("echo 1 > /sys/class/gpio/gpio" + gpioOutOpen + "/value" + "\n");//开
+            else
+                dos.writeBytes("echo 0 > /sys/class/gpio/gpio" + gpioOutOpen + "/value" + "\n");//关
+            dos.flush();
+            dos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void controlGpioClose(boolean isOpen) {
+        DataOutputStream dos = null;
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            dos = new DataOutputStream(process.getOutputStream());
+            if (isOpen)
+                dos.writeBytes("echo 1 > /sys/class/gpio/gpio" + gpioOutClose + "/value" + "\n");//开
             else
                 dos.writeBytes("echo 0 > /sys/class/gpio/gpio" + gpioOutClose + "/value" + "\n");//关
             dos.flush();
@@ -129,7 +165,6 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             e.printStackTrace();
         }
     }
-
 
     private Handler mHandler = new Handler();
     private Runnable mRunnableError = new Runnable() {
@@ -150,7 +185,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
 
         @Override
         public void onSocketConnectionSuccess(Context context, ConnectionInfo info, String action) {
-            Log.i("ywl", "onSocketConnectionSuccess:");
+            Log.i("ywl", "onSocketConnectionSuccess2:" + new Date().getTime());
             socketSend(HttpUtils.getCheckIn2(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
@@ -209,9 +244,11 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             case "Door":
                 type = jsonObject.getString("type");
                 if ("1".equals(type)) {
-                    controlGpio(false);
+                    controlGpioClose(false);
+                    controlGpioOpen(true);
                 } else {
-                    controlGpio(true);
+                    controlGpioClose(true);
+                    controlGpioOpen(false);
                 }
                 break;
         }
@@ -231,5 +268,43 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
                 break;
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    public RequestListener<String> listener = new RequestListener<String>() {
+        @Override
+        protected void onSuccess(int what, String response) {
+            JSONObject jsonObject;
+            switch (what) {
+                case 1001:
+                    jsonObject = (JSONObject) JSON.parse(response);
+                    if (jsonObject.getInteger("status") == 0) {
+                        ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
+                                new Response.Listener<Bitmap>() {
+                                    @Override
+                                    public void onResponse(Bitmap bitmap) {
+                                        imageView.setImageBitmap(bitmap);
+                                    }
+                                }, 0, 0, Bitmap.Config.RGB_565,
+                                new Response.ErrorListener() {
+                                    public void onErrorResponse(VolleyError error) {
+                                        imageView.setImageResource(R.mipmap.ic_launcher);
+                                    }
+                                });
+                        app.mQueue.add(request);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        protected void onError(int what, int code, String message) {
+        }
+    };
 
 }

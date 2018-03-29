@@ -13,27 +13,28 @@
         android:background="@color/colorAccent"
         android:text="切换到蛋糕机页面"
         android:textColor="@android:color/white"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="微信扫一扫开门" />
+        android:hint="微信扫一扫开门"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_open"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="打开"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_close"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="关闭"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/imageView"

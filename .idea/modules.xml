@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JiaYi2.iml" filepath="$PROJECT_DIR$/JiaYi2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidGpioPort.iml" filepath="$PROJECT_DIR$/AndroidGpioPort.iml" />
+      <module fileurl="file://D:\Android\AndroidGpioPort\JiaYi2.iml" filepath="D:\Android\AndroidGpioPort\JiaYi2.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/socket/socket.iml" filepath="$PROJECT_DIR$/socket/socket.iml" />
     </modules>
