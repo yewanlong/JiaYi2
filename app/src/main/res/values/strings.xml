@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">扫描开门</string>
-    <string name="app_name2">蛋糕机</string>
+    <string name="app_name">蛋糕机</string>
     <string name="action_settings">Settings</string>
 </resources>
