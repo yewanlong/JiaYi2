@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -70,6 +71,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         mManager.registerReceiver(adapter);
         mManager.connect();
         checkPermission(new String[]{Manifest.permission.READ_PHONE_STATE}, 199);
+        Toast.makeText(this,"扫码开门",Toast.LENGTH_LONG).show();
     }
 
     public void checkPermission(String[] permissions, int REQUEST_FOR_PERMISSIONS) {

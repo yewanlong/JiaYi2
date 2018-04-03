@@ -65,6 +65,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         mManager.connect();
         checkPermission(new String[]{Manifest.permission.READ_PHONE_STATE}, 199);
         imageView = $(R.id.imageView);
+        Toast.makeText(this,"蛋糕机",Toast.LENGTH_LONG).show();
     }
 
     public void checkPermission(String[] permissions, int REQUEST_FOR_PERMISSIONS) {
