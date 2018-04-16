@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -38,6 +39,9 @@ import java.nio.charset.Charset;
 
 import static com.xuhao.android.libsocket.sdk.OkSocket.open;
 
+/**
+ * 扫码开门
+ */
 public class MainActivity extends YBaseActivity implements View.OnClickListener {
 
     private String fan_id, type;
@@ -371,6 +375,17 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
 
     @Override
     protected void onDestroy() {
+        mManager.disConnect();
+        mHandler.removeCallbacks(mRunnableCSQ);
+        finish();
         super.onDestroy();
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(true);
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 }

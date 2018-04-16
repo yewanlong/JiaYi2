@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -35,6 +36,9 @@ import java.util.Date;
 
 import static com.xuhao.android.libsocket.sdk.OkSocket.open;
 
+/**
+ * 蛋糕机
+ */
 public class MainActivity2 extends YBaseActivity implements View.OnClickListener {
 
     private String type;
@@ -65,7 +69,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         mManager.connect();
         checkPermission(new String[]{Manifest.permission.READ_PHONE_STATE}, 199);
         imageView = $(R.id.imageView);
-        Toast.makeText(this,"蛋糕机",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "蛋糕机", Toast.LENGTH_LONG).show();
     }
 
     public void checkPermission(String[] permissions, int REQUEST_FOR_PERMISSIONS) {
@@ -81,8 +85,6 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
 
     @Override
     protected void initData() {
-        StringRequest request = HttpUtils.getImageCode(listener);
-        InitApplication.getInstance().addRequestQueue(1001, request, this);
         gpioOut(gpioOutOpen);
         gpioOut(gpioOutClose);
         try {
@@ -132,7 +134,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             dos.flush();
             dos.close();
         } catch (IOException e) {
-            Toast.makeText(this,"没有ROOT权限",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "没有ROOT权限", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -149,7 +151,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             dos.flush();
             dos.close();
         } catch (IOException e) {
-            Toast.makeText(this,"没有ROOT权限",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "没有ROOT权限", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -166,7 +168,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             dos.flush();
             dos.close();
         } catch (IOException e) {
-            Toast.makeText(this,"没有ROOT权限",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "没有ROOT权限", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -194,6 +196,8 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             socketSend(HttpUtils.getCheckIn2(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
+            StringRequest request = HttpUtils.getImageCode(listener);
+            InitApplication.getInstance().addRequestQueue(1001, request, this);
         }
 
         @Override
@@ -286,11 +290,6 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     public RequestListener<String> listener = new RequestListener<String>() {
         @Override
         protected void onSuccess(int what, String response) {
@@ -324,4 +323,19 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
         }
     };
 
+    @Override
+    protected void onDestroy() {
+        mManager.disConnect();
+        mHandler.removeCallbacks(mRunnableCSQ);
+        finish();
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            moveTaskToBack(true);
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }
