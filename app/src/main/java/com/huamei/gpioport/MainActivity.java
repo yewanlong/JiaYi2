@@ -84,8 +84,8 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                     permissions,
                     REQUEST_FOR_PERMISSIONS);
         } else {
-//            HttpUtils.IMEI = getSubscriberId(this);
-            HttpUtils.IMEI = "866960027556826";
+            HttpUtils.IMEI = getSubscriberId(this);
+//            HttpUtils.IMEI = "866960027556826";
         }
     }
 

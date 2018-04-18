@@ -14,12 +14,12 @@ import java.util.Map;
  */
 
 public class HttpUtils {
-    protected final static String TCP_URL = "zxy.vpandian.com";
+    protected final static String TCP_URL = "tcp.xiayimart.com";
     public final static String TCP_IP = TCP_URL;
     protected final static int TCP_PRO = 1368;
     public final static int TCP_PRO_IP = TCP_PRO;
     public static String IMEI = "868575021770443";
-    public final static String HTTP_BASE = "http://hh.vpandian.com/api";
+    public final static String HTTP_BASE = "https://www.xiayimart.com/api";
 
     public static String getDoor(String fan_id, String imei, String type, String status) {
         return "Action=Door&Imei=" + imei + "&fan_id=" + fan_id + "&type="
