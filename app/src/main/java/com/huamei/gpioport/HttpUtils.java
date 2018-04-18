@@ -14,6 +14,8 @@ import java.util.Map;
  */
 
 public class HttpUtils {
+//    protected final static String TCP_URL = "zxy.vpandian.com";
+//    public final static String HTTP_BASE = "http://hh.vpandian.com/api";
     protected final static String TCP_URL = "tcp.xiayimart.com";
     public final static String TCP_IP = TCP_URL;
     protected final static int TCP_PRO = 1368;
