@@ -196,8 +196,7 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             socketSend(HttpUtils.getCheckIn2(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
-            StringRequest request = HttpUtils.getImageCode(listener);
-            InitApplication.getInstance().addRequestQueue(1001, request, this);
+            getImageCode();
         }
 
         @Override
@@ -272,7 +271,15 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
                     controlGpioClose(true);
                 }
                 break;
+            case "ImageCode":
+                getImageCode();
+                break;
         }
+    }
+
+    private void getImageCode() {
+        StringRequest request = HttpUtils.getImageCode(listener);
+        InitApplication.getInstance().addRequestQueue(1001, request, this);
     }
 
     @Override

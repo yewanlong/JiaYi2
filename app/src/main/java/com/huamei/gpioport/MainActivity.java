@@ -75,7 +75,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         mManager.registerReceiver(adapter);
         mManager.connect();
         checkPermission(new String[]{Manifest.permission.READ_PHONE_STATE}, 199);
-        Toast.makeText(this,"扫码开门",Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "扫码开门", Toast.LENGTH_LONG).show();
     }
 
     public void checkPermission(String[] permissions, int REQUEST_FOR_PERMISSIONS) {
@@ -290,8 +290,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
             socketSend(HttpUtils.getCheckIn(0, HttpUtils.IMEI));
             mHandler.removeCallbacks(mRunnableCSQ);
             mHandler.postDelayed(mRunnableCSQ, 1000);
-            StringRequest request = HttpUtils.getImageCode(listener);
-            InitApplication.getInstance().addRequestQueue(1001, request, this);
+            getImageCode();
         }
 
         @Override
@@ -334,6 +333,11 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         }
     }
 
+    private void getImageCode() {
+        StringRequest request = HttpUtils.getImageCode(listener);
+        InitApplication.getInstance().addRequestQueue(1001, request, this);
+    }
+
     private void ReadResponse(String str) {
         JSONObject jsonObject = new JSONObject();
         String[] sourceStrArray = str.split("&");
@@ -353,6 +357,9 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                     controlGpio(false);
                 }
                 mHandler.postDelayed(mRunnable, 1000);
+                break;
+            case "ImageCode":
+                getImageCode();
                 break;
         }
     }
@@ -380,6 +387,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
         finish();
         super.onDestroy();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
