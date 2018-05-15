@@ -30,7 +30,7 @@ public class HttpUtils {
 
     public static String getCheckIn(long msgId, String imei) {
         return "Action=CheckIn&Imei=" + imei + "&MsgId=" + msgId + "&Timer="
-                + new Date().getTime() + "&devicefrom=1";
+                + new Date().getTime() + "&devicefrom=4";
     }
     public static String getCheckIn2(long msgId, String imei) {
         return "Action=CheckIn&Imei=" + imei + "&MsgId=" + msgId + "&Timer="
