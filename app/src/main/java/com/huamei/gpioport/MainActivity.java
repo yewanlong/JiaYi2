@@ -101,6 +101,7 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
             JSONObject jsonObject;
             switch (what) {
                 case 1001:
+                    try {
                     jsonObject = (JSONObject) JSON.parse(response);
                     if (jsonObject.getInteger("status") == 0) {
                         ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
@@ -116,6 +117,10 @@ public class MainActivity extends YBaseActivity implements View.OnClickListener 
                                     }
                                 });
                         app.mQueue.add(request);
+                    }
+
+                    }catch (Exception e){
+
                     }
                     break;
                 default:

@@ -303,21 +303,25 @@ public class MainActivity2 extends YBaseActivity implements View.OnClickListener
             JSONObject jsonObject;
             switch (what) {
                 case 1001:
-                    jsonObject = (JSONObject) JSON.parse(response);
-                    if (jsonObject.getInteger("status") == 0) {
-                        ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
-                                new Response.Listener<Bitmap>() {
-                                    @Override
-                                    public void onResponse(Bitmap bitmap) {
-                                        imageView.setImageBitmap(bitmap);
-                                    }
-                                }, 0, 0, Bitmap.Config.RGB_565,
-                                new Response.ErrorListener() {
-                                    public void onErrorResponse(VolleyError error) {
-                                        imageView.setImageResource(R.mipmap.ic_launcher);
-                                    }
-                                });
-                        app.mQueue.add(request);
+                    try {
+                        jsonObject = (JSONObject) JSON.parse(response);
+                        if (jsonObject.getInteger("status") == 0) {
+                            ImageRequest request = new ImageRequest(jsonObject.getString("device_qrcode"),
+                                    new Response.Listener<Bitmap>() {
+                                        @Override
+                                        public void onResponse(Bitmap bitmap) {
+                                            imageView.setImageBitmap(bitmap);
+                                        }
+                                    }, 0, 0, Bitmap.Config.RGB_565,
+                                    new Response.ErrorListener() {
+                                        public void onErrorResponse(VolleyError error) {
+                                            imageView.setImageResource(R.mipmap.ic_launcher);
+                                        }
+                                    });
+                            app.mQueue.add(request);
+                        }
+                    } catch (Exception e) {
+
                     }
                     break;
                 default:

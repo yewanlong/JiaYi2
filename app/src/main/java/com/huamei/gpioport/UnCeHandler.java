@@ -34,7 +34,7 @@ public class UnCeHandler implements UncaughtExceptionHandler {
             } catch (InterruptedException e) {
                 Log.e(TAG, "error : ", e);
             }
-            Intent intent = new Intent(application.getApplicationContext(), MainActivity.class);
+            Intent intent = new Intent(application.getApplicationContext(), MainActivity2.class);
             PendingIntent restartIntent = PendingIntent.getActivity(
                     application.getApplicationContext(), 0, intent,
                     Intent.FLAG_ACTIVITY_NEW_TASK);

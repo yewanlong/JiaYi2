@@ -29,8 +29,8 @@ public class InitApplication extends Application {
         applicationContext = this;
         instance = this;
         OkSocket.initialize(this, true);
-//        UnCeHandler catchExcep = new UnCeHandler(this);
-//        Thread.setDefaultUncaughtExceptionHandler(catchExcep);
+        UnCeHandler catchExcep = new UnCeHandler(this);
+        Thread.setDefaultUncaughtExceptionHandler(catchExcep);
     }
 
     public static InitApplication getInstance() {
